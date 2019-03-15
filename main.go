@@ -12,7 +12,7 @@ import (
 type Credential struct {
 	Id     int64
 	Name   string
-	Data  types.Secret `xorm:"varchar(1000)"`
+	Data  types.Secret `xorm:"text"`
 }
 
 func main() {
@@ -33,7 +33,7 @@ func main() {
 	_, err = Orm.Insert(&Credential{1, "test", types.Secret{
 		ProviderName: "gce",
 		KeyInfo: key,
-		Value: "this is a test credential",
+		Data: "this is a test credential",
 	}})
 	if err != nil {
 		fmt.Println(err)
