@@ -1,17 +1,15 @@
 package types
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/tamalsaha/ksm-xorm-demo/secret"
-	"github.com/tamalsaha/ksm-xorm-demo/secret/provider/gce"
-	"strings"
+	"gocloud.dev/secrets"
+
 )
 
 type Secret struct {
-	ProviderName string `json:"p"`
-	KeyInfo      string `json:"k"`
+	Url string `json:"u"`
 	Data         string `json:"-"` // Value
 	Cipher       []byte `json:"c"`
 }
@@ -20,12 +18,13 @@ func (s *Secret) FromDB(bytes []byte) error {
 		return err
 	}
 
-	secProvider, err := getSecretProvider(s.KeyInfo, s.ProviderName)
+	ctx := context.Background()
+	k, err := secrets.OpenKeeper(ctx, s.Url)
 	if err != nil {
 		return err
 	}
 
-	val, err := secProvider.Decrypt(s.Cipher)
+	val, err := k.Decrypt(ctx, s.Cipher)
 	if err != nil {
 		return err
 	}
@@ -35,11 +34,12 @@ func (s *Secret) FromDB(bytes []byte) error {
 }
 
 func (s *Secret) ToDB() ([]byte, error) {
-	provider, err := getSecretProvider(s.KeyInfo, s.ProviderName)
+	ctx := context.Background()
+	k, err := secrets.OpenKeeper(ctx, s.Url)
 	if err != nil {
 		return nil, err
 	}
-	if s.Cipher, err = provider.Encrypt([]byte(s.Data)); err != nil {
+	if s.Cipher, err = k.Encrypt(ctx, []byte(s.Data)); err != nil {
 		return nil, err
 	}
 	//providerName.keyInfo.Value
@@ -47,14 +47,6 @@ func (s *Secret) ToDB() ([]byte, error) {
 }
 
 func (s *Secret) String() string  {
-	return fmt.Sprintf("%v:%v:*",s.ProviderName, s.KeyInfo)
+	return fmt.Sprintf("%v:%v",s.Url, s.Data)
 }
 
-
-func getSecretProvider(key, name string) (secret.Interface, error)  {
-	switch strings.ToLower(name) {
-	case gce.ProviderType:
-		return gce.New(key)
-	}
-	return nil, errors.Errorf("Unknown provider %v", name)
-}

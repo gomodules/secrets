@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"github.com/go-xorm/xorm"
 	_ "github.com/lib/pq"
-	"github.com/tamalsaha/ksm-xorm-demo/types"
+	"github.com/gomodules/ksm-xorm-demo/types"
+	_ "gocloud.dev/secrets/gcpkms"
 )
 
 
@@ -28,11 +29,10 @@ func main() {
 		return
 	}
 
-	key := fmt.Sprintf("projects/%v/locations/%v/keyRings/%v/cryptoKeys/%v", "ackube", "global", "gitea", "gitea-key")
-	fmt.Println(key)
+	url := fmt.Sprintf("gcpkms://projects/%v/locations/%v/keyRings/%v/cryptoKeys/%v", "ackube", "global", "gitea", "gitea-key")
+	fmt.Println(url)
 	_, err = Orm.Insert(&Credential{1, "test", types.Secret{
-		ProviderName: "gce",
-		KeyInfo: key,
+		Url: url,
 		Data: "this is a test credential",
 	}})
 	if err != nil {
