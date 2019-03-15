@@ -47,7 +47,7 @@ func (s *Secret) ToDB() ([]byte, error) {
 }
 
 func (s *Secret) String() string  {
-	return fmt.Sprintf("%v:%v:%v",s.ProviderName, s.KeyInfo, s.Data)
+	return fmt.Sprintf("%v:%v:*",s.ProviderName, s.KeyInfo)
 }
 
 
