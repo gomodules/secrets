@@ -1,7 +1,7 @@
 package types
 
 import (
-	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/tamalsaha/ksm-xorm-demo/secret"
@@ -10,13 +10,13 @@ import (
 )
 
 type Secret struct {
-	ProviderName string
-	KeyInfo      string
-	Value        string
+	ProviderName string `json:"p"`
+	KeyInfo      string `json:"k"`
+	Data         string `json:"-"` // Value
+	Cipher       []byte `json:"c"`
 }
-
 func (s *Secret) FromDB(bytes []byte) error {
-	if err := s.decode(bytes); err != nil {
+	if err := json.Unmarshal(bytes, s); err != nil {
 		return err
 	}
 
@@ -25,11 +25,11 @@ func (s *Secret) FromDB(bytes []byte) error {
 		return err
 	}
 
-	val, err := secProvider.Decrypt([]byte(s.Value))
+	val, err := secProvider.Decrypt(s.Cipher)
 	if err != nil {
 		return err
 	}
-	s.Value = string(val)
+	s.Data = string(val)
 
 	return nil
 }
@@ -39,49 +39,17 @@ func (s *Secret) ToDB() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	data, err := provider.Encrypt([]byte(s.Value))
-	if err != nil {
+	if s.Cipher, err = provider.Encrypt([]byte(s.Data)); err != nil {
 		return nil, err
 	}
 	//providerName.keyInfo.Value
-	ret := fmt.Sprintf("%v.%v.%v", s.ProviderName,
-		base64.StdEncoding.EncodeToString([]byte(s.KeyInfo)),
-		base64.StdEncoding.EncodeToString(data))
-
-	return []byte(ret), nil
+	return json.Marshal(s)
 }
 
 func (s *Secret) String() string  {
-	bytes, err := s.ToDB()
-	if err != nil {
-		return ""
-	}
-
-	return string(bytes)
+	return fmt.Sprintf("%v:%v:%v",s.ProviderName, s.KeyInfo, s.Data)
 }
 
-func (s *Secret) decode(bytes []byte) error  {
-	data := string(bytes)
-	res := strings.Split(data, ".")
-	//providerName.keyInfo.Value
-
-	s.ProviderName = res[0]
-
-	keyData, err := base64.StdEncoding.DecodeString(res[1])
-	if err != nil {
-		return err
-	}
-	s.KeyInfo = string(keyData)
-
-	valData, err := base64.StdEncoding.DecodeString(res[2])
-	if err != nil {
-		return err
-	}
-
-	s.Value = string(valData)
-
-	return nil
-}
 
 func getSecretProvider(key, name string) (secret.Interface, error)  {
 	switch strings.ToLower(name) {
