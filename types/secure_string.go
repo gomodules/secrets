@@ -40,8 +40,19 @@ func (s *SecureString) FromDB(data []byte) error {
 }
 
 func (s *SecureString) ToDB() ([]byte, error) {
+	m.RLock()
+	fn := urlFn
+	rotate := rotateURL
+	m.RUnlock()
+
 	if s.URL == "" {
-		return []byte(s.Data), nil
+		if fn == nil {
+			return []byte(s.Data), nil
+		} else {
+			s.URL = fn()
+		}
+	} else if rotate && fn != nil {
+		s.URL = fn()
 	}
 
 	ctx := context.Background()
@@ -52,7 +63,6 @@ func (s *SecureString) ToDB() ([]byte, error) {
 	if s.Cipher, err = k.Encrypt(ctx, []byte(s.Data)); err != nil {
 		return nil, err
 	}
-	//providerName.keyInfo.Value
 	return json.Marshal(s)
 }
 
