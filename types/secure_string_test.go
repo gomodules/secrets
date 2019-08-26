@@ -3,10 +3,11 @@ package types_test
 import (
 	"fmt"
 
+	"gomodules.xyz/secrets/types"
+
 	"github.com/go-xorm/xorm"
 	_ "github.com/lib/pq"
 	_ "gocloud.dev/secrets/gcpkms"
-	"gomodules.xyz/secrets/types"
 )
 
 // User describes a user

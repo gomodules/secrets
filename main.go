@@ -6,13 +6,20 @@ import (
 	"log"
 	"net/url"
 	"os"
-	"xorm.io/core"
+
+	"gomodules.xyz/secrets/types"
+	"gomodules.xyz/secrets/xkms"
 
 	"github.com/go-xorm/xorm"
-	_ "github.com/lib/pq"
 	"gocloud.dev/secrets"
+	"xorm.io/core"
+
+	_ "github.com/lib/pq"
 	_ "gocloud.dev/secrets/gcpkms"
-	"gomodules.xyz/secrets/xkms"
+)
+
+var (
+	sakeyFile = "/home/tamal/Downloads/ackube-3b7339da1e1e.json"
 )
 
 func main() {
@@ -22,7 +29,6 @@ func main() {
 }
 
 func xormksm_demo() error {
-	sakeyFile := "/home/tamal/Downloads/ackube-3b7339da1e1e.json"
 	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", sakeyFile)
 
 	driver := "postgres"
@@ -60,7 +66,7 @@ func xormksm_demo() error {
 	}
 
 	ctx := context.Background()
-	u2 := "xkms://20190803"
+	u2 := "xkms://" + types.RotateQuarterly()
 	keeper, err := secrets.OpenKeeper(ctx, u2)
 	if err != nil {
 		return err
@@ -94,7 +100,6 @@ func encdec(keeper *secrets.Keeper, text string) error {
 }
 
 func gcpkms_demo() error {
-	sakeyFile := "/home/tamal/Downloads/ackube-3b7339da1e1e.json"
 	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", sakeyFile)
 
 	ctx := context.Background()
