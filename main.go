@@ -66,7 +66,7 @@ func xormksm_demo() error {
 	}
 
 	ctx := context.Background()
-	u2 := "xkms://" + types.RotateQuarterly()
+	u2 := xkms.Scheme + "://" + types.RotateQuarterly()
 	keeper, err := secrets.OpenKeeper(ctx, u2)
 	if err != nil {
 		return err
