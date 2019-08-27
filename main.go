@@ -23,12 +23,12 @@ var (
 )
 
 func main() {
-	if err := xormksm_demo(); err != nil {
+	if err := demoXormksm(); err != nil {
 		log.Fatalln(err)
 	}
 }
 
-func xormksm_demo() error {
+func demoXormksm() error {
 	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", sakeyFile)
 
 	driver := "postgres"
@@ -99,7 +99,7 @@ func encdec(keeper *secrets.Keeper, text string) error {
 	return nil
 }
 
-func gcpkms_demo() error {
+func demoGcpkms() error {
 	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", sakeyFile)
 
 	ctx := context.Background()
