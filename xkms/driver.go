@@ -6,13 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"strconv"
 	"sync"
+
+	"gomodules.xyz/secrets/types"
 
 	"github.com/go-xorm/xorm"
 	"gocloud.dev/secrets"
 	"gocloud.dev/secrets/localsecrets"
-	"gomodules.xyz/secrets/types"
 	"xorm.io/core"
 )
 
@@ -43,6 +43,7 @@ var defaultOptions Options
 var m sync.RWMutex
 var engines = make(map[connector]*xorm.Engine)
 
+// Init initializes a new xorm engine to conn str provided by rawurl
 func Init(rawurl string) error {
 	u, err := url.Parse(rawurl)
 	if err != nil {
@@ -89,6 +90,7 @@ func Init(rawurl string) error {
 	return nil
 }
 
+// Register registers xorm engine x to conn str provided by rawurl
 func Register(rawurl string, x *xorm.Engine) error {
 	u, err := url.Parse(rawurl)
 	if err != nil {
@@ -131,11 +133,7 @@ type URLOpener struct{}
 
 // OpenKeeperURL opens Keeper URLs.
 func (o *URLOpener) OpenKeeperURL(ctx context.Context, u *url.URL) (*secrets.Keeper, error) {
-	id, err := strconv.ParseInt(u.Host, 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("could not parse id=%v, err:%v", u.Path, err)
-	}
-
+	id := u.Host
 	for k := range u.Query() {
 		if k != "driver" && k != "ds" && k != "table" && k != "master_key_url" {
 			return nil, fmt.Errorf("invalid query parameter %q", k)
@@ -188,7 +186,7 @@ func (o *URLOpener) OpenKeeperURL(ctx context.Context, u *url.URL) (*secrets.Kee
 	data := SecretKey{ID: id}
 	found, err := x.Table(opts.Table).Get(&data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load id=%d, err:%v", id, err)
+		return nil, fmt.Errorf("failed to load id=%v, err:%v", id, err)
 	}
 
 	var sk [32]byte
@@ -217,7 +215,7 @@ func (o *URLOpener) OpenKeeperURL(ctx context.Context, u *url.URL) (*secrets.Kee
 }
 
 type SecretKey struct {
-	ID  int64              `xorm:"pk autoincr"`
+	ID  string             `xorm:"pk"`
 	Key types.SecureString `xorm:"text"`
 
 	CreatedUnix int64 `xorm:"INDEX created"`
