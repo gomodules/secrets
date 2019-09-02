@@ -12,8 +12,8 @@ var (
 	m sync.RWMutex
 )
 
-// Config should be called once at the start of a program to configure
-// URLGenerator and secret rotation policy
+// Config should be called once at the start of a program
+// to configure URLGenerator
 func Config(fn URLGenerator) {
 	m.Lock()
 	urlFn = fn
