@@ -7,17 +7,15 @@ import (
 type URLGenerator func() string
 
 var (
-	urlFn     URLGenerator
-	rotateURL bool
+	urlFn URLGenerator
 
 	m sync.RWMutex
 )
 
-// Config should be called once at the start of a program to configure
-// URLGenerator and secret rotation policy
-func Config(fn URLGenerator, autoRotate bool) {
+// Config should be called once at the start of a program
+// to configure URLGenerator
+func Config(fn URLGenerator) {
 	m.Lock()
 	urlFn = fn
-	rotateURL = autoRotate
 	m.Unlock()
 }
