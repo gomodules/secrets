@@ -1,9 +1,7 @@
 package types
 
 import (
-	"fmt"
 	"sync"
-	"time"
 )
 
 type URLGenerator func() string
@@ -22,19 +20,4 @@ func Config(fn URLGenerator, autoRotate bool) {
 	urlFn = fn
 	rotateURL = autoRotate
 	m.Unlock()
-}
-
-// ref: https://play.golang.org/p/vMssfd6ZY8e
-
-func RotateDaily() string {
-	return time.Now().UTC().Format("2006-01-02")
-}
-
-func RotateMonthly() string {
-	return time.Now().UTC().Format("2006-01")
-}
-
-func RotateQuarterly() string {
-	t := time.Now().UTC()
-	return fmt.Sprintf("%d-Q%d", t.Year(), (t.Month()-1)/3+1)
 }
