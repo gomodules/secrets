@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"os"
 
-	"gomodules.xyz/secrets/types"
 	"gomodules.xyz/secrets/xkms"
 
 	"github.com/go-xorm/xorm"
@@ -66,7 +65,7 @@ func demoXormksm() error {
 	}
 
 	ctx := context.Background()
-	u2 := xkms.Scheme + "://" + types.RotateQuarterly()
+	u2 := xkms.RotateQuarterly()
 	keeper, err := secrets.OpenKeeper(ctx, u2)
 	if err != nil {
 		return err
