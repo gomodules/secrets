@@ -192,7 +192,7 @@ func (o *URLOpener) OpenKeeperURL(ctx context.Context, u *url.URL) (*secrets.Kee
 
 	var sk [32]byte
 	if found {
-		sk, err = localsecrets.Base64Key(data.Key.Data)
+		sk, err = localsecrets.Base64KeyStd(data.Key.Data)
 		if err != nil {
 			return nil, fmt.Errorf("open keeper %v: failed to get key: %v", u, err)
 		}
