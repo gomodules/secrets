@@ -9,9 +9,9 @@ import (
 
 	"gomodules.xyz/secrets/xkms"
 
-	"github.com/go-xorm/xorm"
 	"gocloud.dev/secrets"
-	"xorm.io/core"
+	"xorm.io/xorm"
+	"xorm.io/xorm/names"
 
 	_ "github.com/lib/pq"
 	_ "gocloud.dev/secrets/gcpkms"
@@ -51,7 +51,7 @@ func demoXormksm() error {
 	if err != nil {
 		return err
 	}
-	x.SetMapper(core.GonicMapper{})
+	x.SetMapper(names.GonicMapper{})
 	x.ShowSQL(true)
 
 	err = x.CreateTables(&xkms.SecretKey{})
