@@ -5,9 +5,9 @@ import (
 
 	"gomodules.xyz/secrets/types"
 
-	"github.com/go-xorm/xorm"
 	_ "github.com/lib/pq"
 	_ "gocloud.dev/secrets/gcpkms"
+	"xorm.io/xorm"
 )
 
 // User describes a user

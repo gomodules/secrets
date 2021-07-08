@@ -11,10 +11,11 @@ import (
 
 	"gomodules.xyz/secrets/types"
 
-	"github.com/go-xorm/xorm"
 	"gocloud.dev/secrets"
 	"gocloud.dev/secrets/localsecrets"
-	"xorm.io/core"
+	"xorm.io/xorm"
+	"xorm.io/xorm/caches"
+	"xorm.io/xorm/names"
 )
 
 func init() {
@@ -75,8 +76,8 @@ func Init(rawurl string) error {
 	if err != nil {
 		return err
 	}
-	x.SetCacher(defaultOptions.Table, xorm.NewLRUCacher(xorm.NewMemoryStore(), 50))
-	x.SetMapper(core.GonicMapper{})
+	x.SetCacher(defaultOptions.Table, caches.NewLRUCacher(caches.NewMemoryStore(), 50))
+	x.SetMapper(names.GonicMapper{})
 	x.ShowSQL(true)
 
 	m.Lock()
@@ -169,8 +170,8 @@ func (o *URLOpener) OpenKeeperURL(ctx context.Context, u *url.URL) (*secrets.Kee
 		if err != nil {
 			return nil, err
 		}
-		x2.SetCacher(defaultOptions.Table, xorm.NewLRUCacher(xorm.NewMemoryStore(), 50))
-		x2.SetMapper(core.GonicMapper{})
+		x2.SetCacher(defaultOptions.Table, caches.NewLRUCacher(caches.NewMemoryStore(), 50))
+		x2.SetMapper(names.GonicMapper{})
 		x2.ShowSQL(true)
 
 		m.Lock()
